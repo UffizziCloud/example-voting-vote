@@ -32,7 +32,7 @@ button.a{
 }
 
 button.b{
-  background-color: #00cbca;
+  background-color: #9c00cb;
 }
 
 #tip{
@@ -126,4 +126,8 @@ button.b{
   margin-bottom:-4px;
   width:50%;
   height:100%;
+}
+.form-content {
+  display: flex;
+  justify-content: center;
 }
