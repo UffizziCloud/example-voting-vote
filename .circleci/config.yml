@@ -1,0 +1,15 @@
+version: 2
+jobs:
+ build:
+   machine: true
+   steps:
+     - checkout
+
+     # Login to Docker Hub so we can push later.
+     - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+
+     # build the application image
+     - run: docker build -t uffizzicloud/example-vote:$CIRCLE_BRANCH .
+
+     # deploy the image
+     - run: docker push uffizzicloud/example-vote:$CIRCLE_BRANCH
