@@ -6,7 +6,7 @@ jobs:
      - checkout
 
      # Login to Docker Hub so we can push later.
-     - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+     - run: docker login --username $DOCKER_USER --password $DOCKER_PASS
 
      # build the application image
      - run: docker build -t uffizzicloud/example-vote:$CIRCLE_BRANCH .
