@@ -1,9 +1,15 @@
-version: 2
+version: 2.1
+
+workflows:
+  my-workflow:
+    jobs:
+      - build:
+          context:
+            - adams-docker-hub
+
 jobs:
  build:
    machine: true
-   context:
-     - adams-docker-hub
 
    steps:
      - checkout
