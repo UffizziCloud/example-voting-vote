@@ -5,31 +5,53 @@ version: 2.1 # Use version 2.1 config to get access to orbs, pipelines
 workflows:
   build-deploy:
     jobs:
-      - build-and-push-docker-hub:
-          context:
-            - adams-docker-hub
-
       - azure-acr/build-and-push-image:
+          name: Build Image from Pull Request and Push to Azure Container Registry
+          filters:
+            branches:
+              ignore: main
+          pre-steps:
+            - run:
+                name: Setup Environment Variables For Pull Request
+                command: echo 'export TAG=uffizzi_request_`echo $CIRCLE_PULL_REQUEST | grep [^\/]*$ --only-matching`' >> $BASH_ENV
+            - run:
+                name: (Echo $TAG for Troubleshooting)
+                command: echo $TAG
           dockerfile: # defaults to `Dockerfile`
           path: # Defaults to working directory
           login-server-name: uffizziqa.azurecr.io # e.g. {yourregistryname}.azure.io
           registry-name: uffizziqa
-          repo: example-vote
-          tag: $CIRCLE_BRANCH
+          repo: example-voting-vote
+          tag: $TAG
           context:
             - test-acr-service-principal
-jobs:
- build-and-push-docker-hub:
-   machine: true
 
-   steps:
-     - checkout
+      - azure-acr/build-and-push-image:
+          name: Build Image from `main` Branch and Push to Azure Container Registry
+          filters:
+            branches:
+              only: main
+          dockerfile: # defaults to `Dockerfile`
+          path: # Defaults to working directory
+          login-server-name: uffizziqa.azurecr.io # e.g. {yourregistryname}.azure.io
+          registry-name: uffizziqa
+          repo: example-voting-vote
+          tag: latest
+          context:
+            - test-acr-service-principal
 
-     # Login to Docker Hub so we can push later.
-     - run: docker login --username $DOCKER_USER --password $DOCKER_PASS
-
-     # build the application image
-     - run: docker build -t uffizzicloud/example-vote:$CIRCLE_BRANCH .
-
-     # deploy the image
-     - run: docker push uffizzicloud/example-vote:$CIRCLE_BRANCH
+      - azure-acr/build-and-push-image:
+          name: Build Image from Tag and Push to Azure Container Registry
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          dockerfile: # defaults to `Dockerfile`
+          path: # Defaults to working directory
+          login-server-name: uffizziqa.azurecr.io # e.g. {yourregistryname}.azure.io
+          registry-name: uffizziqa
+          repo: example-voting-vote
+          tag: $CIRCLE_TAG
+          context:
+            - test-acr-service-principal
