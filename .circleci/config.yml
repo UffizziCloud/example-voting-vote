@@ -1,14 +1,25 @@
-version: 2.1
+orbs:
+  azure-acr: circleci/azure-acr@0.2.0
+version: 2.1 # Use version 2.1 config to get access to orbs, pipelines
 
 workflows:
-  my-workflow:
+  build-deploy:
     jobs:
-      - build:
+      - build-and-push-docker-hub:
           context:
             - adams-docker-hub
 
+      - azure-acr/build-and-push-image:
+          dockerfile: # defaults to `Dockerfile`
+          path: # Defaults to working directory
+          login-server-name: uffizziqa.azurecr.io # e.g. {yourregistryname}.azure.io
+          registry-name: uffizziqa
+          repo: example-vote
+          tag: $CIRCLE_BRANCH
+          context:
+            - test-acr-service-principal
 jobs:
- build:
+ build-and-push-docker-hub:
    machine: true
 
    steps:
