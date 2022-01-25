@@ -1,2 +1,2 @@
 # example-voting-vote
-Python app to tally votes for Vote App
+Python app to tally votes for Vote App component
